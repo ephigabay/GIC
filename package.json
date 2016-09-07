@@ -1,0 +1,15 @@
+{
+  "name": "gic",
+  "version": "0.0.1",
+  "description": "Git based chat",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ephi Gabay",
+  "license": "ISC",
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "shelljs": "^0.7.4"
+  }
+}
