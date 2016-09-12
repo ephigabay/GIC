@@ -1,5 +1,6 @@
 'use strict';
 
+const config = require('./config');
 const git = new (require('./Git'))();
 const GUI = new (require('./UI'))();
 
@@ -33,7 +34,7 @@ GUI.addMessage("And every channel is a branch");
 GUI.addMessage("");
 GUI.addMessage("Cloning repo... Please wait...");
 
-git.cloneRepo('https://github.com/ephigabay/chatRepo.git')
+git.cloneRepo(config.gitRepo)
     .then(() => {
 
         GUI.addMessage("Finished cloning repo, you may begin!");
@@ -50,7 +51,7 @@ function getBranches() {
                 GUI.addChannelBuffer(branch);
             });
             GUI.addChannelFlush();
-            setTimeout(getBranches, 5000);
+            setTimeout(getBranches, config.branchesCheckInterval);
         }).catch(err => {
             console.error(err);
         })
@@ -63,7 +64,7 @@ function getMessages() {
                 GUI.addMessageBuffer('{bold}' + commit.sender + '{/bold}: ' + commit.message);
             });
             GUI.addMessageFlush();
-            setTimeout(getMessages, 500);
+            setTimeout(getMessages, config.messageCheckInterval);
         }).catch((err) => {
             console.error(err);
         })
