@@ -6,9 +6,9 @@ In GIC every message is a commit message, and every channel in the chat is a bra
 
 ## Getting started
 Clone this repo:
-`git clone https://github.com/ephigabay/GIC.git`
+`git clone https://github.com/ephigabay/GIC.git`  
 Install dependencies:
-`npm install`
+`npm install`  
 Edit the repository link in the `config.js` file to a git repository you have access to.
 Run the app: `npm start`
 
