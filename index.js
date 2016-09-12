@@ -12,6 +12,20 @@ GUI.setInputEvent((element) => {
     GUI.redraw();
 });
 
+GUI.setListItemSelectedEvent((newBranch) => {
+    git.getCurrentBranch()
+        .then(currentBranch => {
+            if(currentBranch !== newBranch) {
+                GUI.clearMessages();
+                GUI.addMessage("Please wait...");
+                git.switchBranch(newBranch)
+                    .then(() => {
+                        GUI.clearMessages();
+                        GUI.addMessage("Switched to branch " + newBranch);
+                    });
+            }
+        })
+});
 
 GUI.addMessage("Welcome to GIC - the first git based chat");
 GUI.addMessage("Every message in this chat is a commit");
@@ -49,7 +63,7 @@ function getMessages() {
                 GUI.addMessageBuffer('{bold}' + commit.sender + '{/bold}: ' + commit.message);
             });
             GUI.addMessageFlush();
-            setTimeout(getMessages, 1000);
+            setTimeout(getMessages, 500);
         }).catch((err) => {
             console.error(err);
         })

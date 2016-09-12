@@ -1,7 +1,7 @@
 'use strict';
 require('shelljs/global');
 
-const TEMP_FOLDER = '/tmp';
+const TEMP_FOLDER = require('os').tmpdir() ;
 
 class Git {
 
@@ -13,6 +13,14 @@ class Git {
     cloneRepo(repository) {
     	return this.runCommand('git clone --depth=1 ' + repository + ' ' + this.getRepoFolderName());
     }
+
+    getCurrentBranch() {
+    	return this.runGitCommand('rev-parse --abbrev-ref HEAD')
+			.then(branch => {
+				return branch.trim();
+			});
+	}
+
 
     getBranches() {
     	return this.runGitCommand('ls-remote --heads origin')
@@ -63,7 +71,7 @@ class Git {
     sendMessage(message) {
 
         if(this.lock) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 setTimeout(() => {
                     this.sendMessage(message)
                         .then(resolve)
@@ -72,16 +80,24 @@ class Git {
         }
 
         this.lock = true;
-        return this.runGitCommand('commit -am "' + message.replace(/"/g, "\\\"") + '" --allow-empty')
-                    .then(this.runGitCommand.bind(this,'push'))
-                    .then(() => {
-                        this.lock = false;
-                    });
+
+		return this.getCurrentBranch()
+			.then(branch => {
+				return this.runGitCommand('commit -am "' + message.replace(/"/g, "\\\"") + '" --allow-empty')
+					.then(this.runGitCommand.bind(this,'push -u origin ' + branch))
+					.then(() => {
+						this.lock = false;
+					});
+			})
+
     }
 
     switchBranch(branchName) {
-    	return this.runGitCommand('fetch origin ' + branchName + ':' + branchName)
-    			.then(this.runGitCommand.bind(this, 'checkout ' + branchName));
+		return this.runGitCommand('checkout ' + branchName)
+			.catch(() => {
+				return this.runGitCommand('fetch origin ' + branchName + ':' + branchName)
+					.then(this.switchBranch.bind(this, branchName));
+			})
     }
 
     getRepoFolderName() {
@@ -103,13 +119,12 @@ class Git {
     	});
     }
 
-    runGitCommand(command, callback) {
-
+    runGitCommand(command) {
     	cd(TEMP_FOLDER + '/' + this.getRepoFolderName());
 
     	return new Promise((resolve, reject) => {
     		exec('git ' + command, {silent: true}, function(code, stdout, stderr) {
-	    		if(code === 0) {
+    			if(code === 0) {
 	    			resolve(stdout);
 	    		} else {
 	    			reject(stderr);

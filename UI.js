@@ -43,6 +43,12 @@ class UI {
 		});
 	}
 
+	setListItemSelectedEvent(callback) {
+		this.channelsList.on('element click', function() {
+			callback(this.value);
+		})
+	}
+
 	generateChatHistory() {
 		return blessed.box({
 		    top: 0,
@@ -136,6 +142,10 @@ class UI {
 		this.redraw();
 	}
 
+	clearMessages() {
+		this.chatHistory.setContent('');
+	}
+
 	addChannelBuffer(channel) {
 		if(!this.channelsList.getItem(channel)) {
             this.channelsList.add(channel);                    
@@ -143,7 +153,7 @@ class UI {
 	}
 
 	addChannelFlush() {
-		this.screen.render();
+		this.redraw();
 	}
 
 	redraw() {
